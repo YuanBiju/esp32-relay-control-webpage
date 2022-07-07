@@ -6,7 +6,7 @@ We'll go through the entire project step by step from creating a webpage to inte
 The following code connects the esp32 to you local wifi network which assigns it an ip address which the network will use to identify the esp32.
 Read the comments in the code to understand what each piece of code do.
 
-```
+```c++
 //include Wifi library
 #include <WiFi.h>
 
@@ -39,18 +39,27 @@ void setup() {
   Serial.println(WiFi.localIP());
   server.begin();
 }
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  delay(10000);
+}
 ```
 
 Why use port 80? Because we are creating a http server to communicate with the webpage and port 80 in a network is the port designated to handle HTTP requests.
 
 ### Step 2: Create http server
 Open another tab in the same project in Arduino IDE and name it app_http_server.h
-```
+```c++
 // include http server library
 #include "esp_http_server.h"
 
 // include the index html. this will be discussed later
 #include "index_html.h"
+
+// include library for logging
+#include "esp_log.h"
+static const char *TAG = "camera_httpd";
 
 httpd_handle_t relay_httpd = NULL;
 
@@ -101,14 +110,17 @@ void startHttpServer()
         httpd_register_uri_handler(relay_httpd, &index_uri);
         httpd_register_uri_handler(relay_httpd, &led_toggle_uri);
     }
+}
 ```
 
 ### Step 3: Create index html file
 
 <details>
   <summary>Click to expand!</summary>
-```
-//File: index_ov2640.html.gz, Size: 6787
+  <p>
+  
+```c++
+// File: index_ov2640.html.gz, Size: 6787
 #define index_ov2640_html_gz_len 6787
 const uint8_t index_ov2640_html_gz[] = {
  0x1F, 0x8B, 0x08, 0x08, 0x23, 0xFC, 0x69, 0x5E, 0x00, 0x03, 0x69, 0x6E, 0x64, 0x65, 0x78, 0x5F,
@@ -538,5 +550,9 @@ const uint8_t index_ov2640_html_gz[] = {
  0xAB, 0x00, 0x00
 };
 ```
+    </p>
 </details>
+
+Compile and uplaod the code to esp32 board, open the serial terminal in Arduino and reboot the esp32.
+The IP address of the esp32 board will appear on the terminal. Copy the address and search it in browser to get the index page from where you can control the led.
 
